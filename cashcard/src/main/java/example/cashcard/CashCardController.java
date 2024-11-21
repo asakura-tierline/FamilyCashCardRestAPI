@@ -1,11 +1,13 @@
 package example.cashcard;
 
+import java.util.Optional;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/cashcards")
@@ -24,5 +26,10 @@ private ResponseEntity<CashCard> findById(@PathVariable Long requestedId) {
     } else {
         return ResponseEntity.notFound().build();
     }
+}
+
+@PostMapping
+private ResponseEntity<Void> createCashCard() {
+   return null;
 }
 }
