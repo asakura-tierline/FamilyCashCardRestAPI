@@ -11,9 +11,15 @@ import org.springframework.security.web.SecurityFilterChain;
 class SecurityConfig {
 
   @Bean
-   SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-       return http.build();
-   }
+SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+     http
+             .authorizeHttpRequests(request -> request
+                     .requestMatchers("/cashcards/**")
+                     .authenticated())
+             .httpBasic(Customizer.withDefaults())
+             .csrf(csrf -> csrf.disable());
+     return http.build();
+}
 
    @Bean
    PasswordEncoder passwordEncoder() {
