@@ -17,7 +17,6 @@ import com.jayway.jsonpath.JsonPath;
 import net.minidev.json.JSONArray;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-// @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 class CashCardApplicationTests {
     @Autowired
     TestRestTemplate restTemplate;
@@ -46,7 +45,7 @@ class CashCardApplicationTests {
     @Test
     @DirtiesContext
     void shouldCreateANewCashCard() {
-        CashCard newCashCard = new CashCard(null, 250.00);
+        CashCard newCashCard = new CashCard(null, 250.00, "sarah1");
         ResponseEntity<Void> createResponse = restTemplate.postForEntity("/cashcards", newCashCard, Void.class);
         assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
@@ -63,54 +62,54 @@ class CashCardApplicationTests {
     }
 
     @Test
- void shouldReturnAllCashCardsWhenListIsRequested() {
-     ResponseEntity<String> response = restTemplate.getForEntity("/cashcards", String.class);
-     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    void shouldReturnAllCashCardsWhenListIsRequested() {
+        ResponseEntity<String> response = restTemplate.getForEntity("/cashcards", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-     DocumentContext documentContext = JsonPath.parse(response.getBody());
-     int cashCardCount = documentContext.read("$.length()");
-     assertThat(cashCardCount).isEqualTo(3);
+        DocumentContext documentContext = JsonPath.parse(response.getBody());
+        int cashCardCount = documentContext.read("$.length()");
+        assertThat(cashCardCount).isEqualTo(3);
 
-     JSONArray ids = documentContext.read("$..id");
-     assertThat(ids).containsExactlyInAnyOrder(99, 100, 101);
+        JSONArray ids = documentContext.read("$..id");
+        assertThat(ids).containsExactlyInAnyOrder(99, 100, 101);
 
-     JSONArray amounts = documentContext.read("$..amount");
-     assertThat(amounts).containsExactlyInAnyOrder(123.45, 1.00, 150.00);
- }
+        JSONArray amounts = documentContext.read("$..amount");
+        assertThat(amounts).containsExactlyInAnyOrder(123.45, 1.00, 150.00);
+    }
 
- @Test
-void shouldReturnAPageOfCashCards() {
-    ResponseEntity<String> response = restTemplate.getForEntity("/cashcards?page=0&size=1", String.class);
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    @Test
+    void shouldReturnAPageOfCashCards() {
+        ResponseEntity<String> response = restTemplate.getForEntity("/cashcards?page=0&size=1", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-    DocumentContext documentContext = JsonPath.parse(response.getBody());
-    JSONArray page = documentContext.read("$[*]");
-    assertThat(page.size()).isEqualTo(1);
-}
+        DocumentContext documentContext = JsonPath.parse(response.getBody());
+        JSONArray page = documentContext.read("$[*]");
+        assertThat(page.size()).isEqualTo(1);
+    }
 
-@Test
-void shouldReturnASortedPageOfCashCards() {
-    ResponseEntity<String> response = restTemplate.getForEntity("/cashcards?page=0&size=1&sort=amount,desc", String.class);
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    @Test
+    void shouldReturnASortedPageOfCashCards() {
+        ResponseEntity<String> response = restTemplate.getForEntity("/cashcards?page=0&size=1&sort=amount,desc", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-    DocumentContext documentContext = JsonPath.parse(response.getBody());
-    JSONArray read = documentContext.read("$[*]");
-    assertThat(read.size()).isEqualTo(1);
+        DocumentContext documentContext = JsonPath.parse(response.getBody());
+        JSONArray read = documentContext.read("$[*]");
+        assertThat(read.size()).isEqualTo(1);
 
-    double amount = documentContext.read("$[0].amount");
-    assertThat(amount).isEqualTo(150.00);
-}
+        double amount = documentContext.read("$[0].amount");
+        assertThat(amount).isEqualTo(150.00);
+    }
 
-@Test
-void shouldReturnASortedPageOfCashCardsWithNoParametersAndUseDefaultValues() {
-    ResponseEntity<String> response = restTemplate.getForEntity("/cashcards", String.class);
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    @Test
+    void shouldReturnASortedPageOfCashCardsWithNoParametersAndUseDefaultValues() {
+        ResponseEntity<String> response = restTemplate.getForEntity("/cashcards", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-    DocumentContext documentContext = JsonPath.parse(response.getBody());
-    JSONArray page = documentContext.read("$[*]");
-    assertThat(page.size()).isEqualTo(3);
+        DocumentContext documentContext = JsonPath.parse(response.getBody());
+        JSONArray page = documentContext.read("$[*]");
+        assertThat(page.size()).isEqualTo(3);
 
-    JSONArray amounts = documentContext.read("$..amount");
-    assertThat(amounts).containsExactly(1.00, 123.45, 150.00);
-}
+        JSONArray amounts = documentContext.read("$..amount");
+        assertThat(amounts).containsExactly(1.00, 123.45, 150.00);
+    }
 }

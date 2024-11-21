@@ -36,18 +36,6 @@ class CashCardController {
         }
     }
 
-
-@GetMapping
-private ResponseEntity<List<CashCard>> findAll(Pageable pageable) {
-    Page<CashCard> page = cashCardRepository.findAll(
-            PageRequest.of(
-                    pageable.getPageNumber(),
-                    pageable.getPageSize(),
-                    pageable.getSortOr(Sort.by(Sort.Direction.ASC, "amount"))
-    ));
-    return ResponseEntity.ok(page.getContent());
-}
-
     @PostMapping
     private ResponseEntity<Void> createCashCard(@RequestBody CashCard newCashCardRequest, UriComponentsBuilder ucb) {
         CashCard savedCashCard = cashCardRepository.save(newCashCardRequest);
@@ -56,5 +44,16 @@ private ResponseEntity<List<CashCard>> findAll(Pageable pageable) {
                 .buildAndExpand(savedCashCard.id())
                 .toUri();
         return ResponseEntity.created(locationOfNewCashCard).build();
+    }
+
+    @GetMapping
+    private ResponseEntity<List<CashCard>> findAll(Pageable pageable) {
+        Page<CashCard> page = cashCardRepository.findAll(
+                PageRequest.of(
+                        pageable.getPageNumber(),
+                        pageable.getPageSize(),
+                        pageable.getSortOr(Sort.by(Sort.Direction.ASC, "amount"))
+                ));
+        return ResponseEntity.ok(page.getContent());
     }
 }
