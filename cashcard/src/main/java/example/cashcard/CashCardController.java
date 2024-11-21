@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
-
 @RestController
 @RequestMapping("/cashcards")
 class CashCardController {
@@ -32,12 +31,12 @@ class CashCardController {
     @GetMapping("/{requestedId}")
     private ResponseEntity<CashCard> findById(@PathVariable Long requestedId, Principal principal) {
         CashCard cashCard = findCashCard(requestedId, principal);
-    if (cashCard != null) {
-        return ResponseEntity.ok(cashCard);
-    } else {
-        return ResponseEntity.notFound().build();
+        if (cashCard != null) {
+            return ResponseEntity.ok(cashCard);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
-}
 
     @PostMapping
     private ResponseEntity<Void> createCashCard(@RequestBody CashCard newCashCardRequest, UriComponentsBuilder ucb, Principal principal) {
@@ -62,24 +61,30 @@ class CashCardController {
     }
 
     @PutMapping("/{requestedId}")
-private ResponseEntity<Void> putCashCard(@PathVariable Long requestedId, @RequestBody CashCard cashCardUpdate, Principal principal) {
-    CashCard cashCard = findCashCard(requestedId, principal);
-    if (null != cashCard) {
-        CashCard updatedCashCard = new CashCard(cashCard.id(), cashCardUpdate.amount(), principal.getName());
-        cashCardRepository.save(updatedCashCard);
+    private ResponseEntity<Void> putCashCard(@PathVariable Long requestedId, @RequestBody CashCard cashCardUpdate, Principal principal) {
+        CashCard cashCard = findCashCard(requestedId, principal);
+        if (cashCard != null) {
+            CashCard updatedCashCard = new CashCard(requestedId, cashCardUpdate.amount(), principal.getName());
+            cashCardRepository.save(updatedCashCard);
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @DeleteMapping("/{id}")
+    private ResponseEntity<Void> deleteCashCard(
+        @PathVariable Long id,
+        Principal principal
+    ) {
+    if (!cashCardRepository.existsByIdAndOwner(id, principal.getName())) {
+        return ResponseEntity.notFound().build();
+    }
+        cashCardRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
-    return ResponseEntity.notFound().build();
-}
-
-@DeleteMapping("/{id}")
-private ResponseEntity<Void> deleteCashCard(@PathVariable Long id) {
-    cashCardRepository.deleteById(id);
-    return ResponseEntity.noContent().build();
-}
 
 
-private CashCard findCashCard(Long requestedId, Principal principal) {
-    return cashCardRepository.findByIdAndOwner(requestedId, principal.getName());
-}
+    private CashCard findCashCard(Long requestedId, Principal principal) {
+        return cashCardRepository.findByIdAndOwner(requestedId, principal.getName());
+    }
 }
